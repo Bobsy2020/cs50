@@ -7,8 +7,11 @@
 
 
 {% block body %}
-    <h1></h1>
-<!-- <div markdown="1">{{ text }}</div>      -->     
-<!-- {{ text }}    -->    
+    <h1></h1>  
     {{ text|safe|escape }}
+    <a class="btn" title="Edit" href="/new">
+        <i class="fas fa-edit"></i></a>
+    
 {% endblock %}
+
+

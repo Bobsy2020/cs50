@@ -1,3 +1,4 @@
+from django.core.files import File
 from django.http import HttpResponse
 from django.shortcuts import render
 import markdown2
@@ -40,3 +41,70 @@ def search(request):
                "queryon": search_string,
                "titles": searchResult
                 })
+
+def new(request, method = "POST"):
+
+    if request.method == "POST":
+        newTitle = request.POST.get("title")
+        text = request.POST.get("text")
+        # print(newTitle)
+        # print(text)
+        # check that a title is present
+        if not newTitle:
+            message = "Title is missing!"
+            alert = "alert alert-warning"
+            return render(request,"encyclopedia/new.html", {
+                    "message": message,
+                    "alert": alert,
+                    "text": text,
+                    "autofocusTitle": "autofocus"
+                })
+        # check that a description is present        
+        elif not text:
+            message = "Need a description!"
+            alert = "alert alert-warning"
+            return render(request,"encyclopedia/new.html", {
+                    "message": message,
+                    "alert": alert,
+                    "title": newTitle,
+                    "autofocusText": "autofocus"
+                })
+        # find out if file already exists
+        titles = util.list_entries()
+        for title in titles:
+            if newTitle == title:
+                message = "Title " + title + " already exists!"
+                alert = "alert alert-warning"
+                #print("title already exists")
+                return render(request,"encyclopedia/new.html", {
+                    "message": message,
+                    "alert": alert,
+                    "text": text,
+                    "autofocusTitle": "autofocus"
+                })
+            
+        # create a new file
+        # Create a Python file object using open() and the with statement
+        fileName = newTitle + ".md"
+        text = "# " + newTitle + "\n\n" + text
+        
+        with open('entries/' + fileName, 'w') as f:
+            myfile = File(f)
+            myfile.write(text)
+            myfile.closed
+        f.closed
+
+        #util.save_entry(newTitle, text)
+        markdown_text = util.get_entry(newTitle)
+        html = markdown2.markdown(markdown_text)
+        return render(request, "encyclopedia/wiki.html", {
+            "text":html
+        })
+    else:
+        # print("GET request")
+        message = "Please enter a title and description."
+        alert = "alert alert-secondary"
+        return render(request,"encyclopedia/new.html", {
+            "message": message,
+            "alert": alert
+        })
