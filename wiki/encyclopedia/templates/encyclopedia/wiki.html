@@ -9,7 +9,9 @@
 {% block body %}
     <h1></h1>  
     {{ text|safe|escape }}
-    <a class="btn" title="Edit" href="/new">
+
+<!--    <a class="btn" title="Edit" href="edit/{{ title }}"> -->
+    <a class="btn" title="Edit" href="{% url 'edit' title %}">
         <i class="fas fa-edit"></i></a>
     
 {% endblock %}
