@@ -5,6 +5,7 @@ import markdown2
 from markdown2 import Markdown
 #Import os module
 import os
+import random
 from . import util
 
 
@@ -34,9 +35,10 @@ def search(request):
                 markdown_text = util.get_entry(title)
                 html = markdown2.markdown(markdown_text)
                 return render(request, "encyclopedia/wiki.html", {
-                "text":html
+                    "text":html,
+                    "title":title
                 })
-            elif search_string in title:
+            elif search_string.upper() in title.upper():
                 searchResult.append(title)
         return render(request, "encyclopedia/search.html", {
                "queryon": search_string,
@@ -81,6 +83,7 @@ def new(request, method = "POST"):
                     "message": message,
                     "alert": alert,
                     "text": text,
+                    "title":title,
                     "autofocusTitle": "autofocus"
                 })
             
@@ -99,7 +102,8 @@ def new(request, method = "POST"):
         markdown_text = util.get_entry(newTitle)
         html = markdown2.markdown(markdown_text)
         return render(request, "encyclopedia/wiki.html", {
-            "text":html
+            "text":html,
+            "title":newTitle
         })
     else:
         # print("GET request")
@@ -109,22 +113,6 @@ def new(request, method = "POST"):
             "message": message,
             "alert": alert
         })
-
-#def edit(request, title):
-    #print("got there")
-    #fileName = title + ".md"
-        #text = "# " + title + "\n\n" + text
-        
-        #with open('entries/' + fileName, 'w') as f:
-        #   myfile = File(f)
-        #    myfile.write(text)
-        #    myfile.closed
-        #f.closed
-
-    #util.save_entry(title, text)
-    #markdown_text = util.get_entry(newTitle)
-    #html = markdown2.markdown(markdown_text)
-    #return render(request, "encyclopedia/edit.html")
 
 def edit(request, title, method="POST"):
     if request.method == "POST":
@@ -143,3 +131,17 @@ def edit(request, title, method="POST"):
             "title":title,
             "text":markdown_text
         })
+
+def randomChoice(request):
+    entries = util.list_entries()
+    try:
+        title=random.choice(entries)
+        #return HttpResponse(title)
+        markdown_text = util.get_entry(title)
+        html = markdown2.markdown(markdown_text)
+        return render(request, "encyclopedia/wiki.html", {
+            "text":html,
+            "title":title
+        })   
+    except IndexError:
+        return HttpResponse("There are no entries!")
